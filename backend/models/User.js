@@ -35,6 +35,22 @@ const User = sequelize.define(
           user.password = await bcrypt.hash(user.password, 10);
         }
       },
+      beforeCreate: async (user) => {
+        user.email = user.email.toLowerCase().trim();
+      },
+      beforeUpdate: async (user) => {
+        user.email = user.email.toLowerCase().trim();
+      },
+      afterCreate: async (user) => {
+        const { logActivity } = require("../services/loggerService");
+        await logActivity(user.id, "user_created", `User ${user.email} created with role ${user.role}`);
+      },
+      afterUpdate: async (user) => {
+        const { logActivity } = require("../services/loggerService");
+        if (user.changed("role")) {
+          await logActivity(user.id, "role_updated", `User ${user.email} role changed to ${user.role}`);
+        }
+      },
     },
   }
 );

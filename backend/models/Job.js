@@ -40,6 +40,27 @@ const Job = sequelize.define("Job", {
     type: DataTypes.ENUM("pending", "approved", "rejected"),
     defaultValue: "pending",
   },
+}, {
+  hooks: {
+    beforeCreate: async (job) => {
+      job.title = job.title.trim();
+      job.company = job.company.trim();
+    },
+    beforeUpdate: async (job) => {
+      job.title = job.title.trim();
+      job.company = job.company.trim();
+    },
+    afterUpdate: async (job) => {
+      const { logActivity } = require("../services/loggerService");
+      if (job.changed("status")) {
+        await logActivity(job.userId, "job_status_updated", `Job ${job.title} status changed to ${job.status}`);
+      }
+    },
+    afterDestroy: async (job) => {
+      const { logActivity } = require("../services/loggerService");
+      await logActivity(job.userId, "job_deleted", `Job ${job.title} deleted`);
+    },
+  },
 });
 
 Job.belongsTo(User, { foreignKey: "userId", as: "employer" });

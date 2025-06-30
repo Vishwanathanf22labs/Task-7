@@ -44,8 +44,8 @@ const Jobs = () => {
     try {
       setLoading(true)
       const response = await jobsAPI.getAll()
-      setAllJobs(response.data.jobs)
-      setJobs(response.data.jobs)
+      setAllJobs(response.data.jobs.reverse())
+      setJobs(response.data.jobs.reverse())
     } catch (error) {
       console.log('Failed to fetch jobs: ', error)
     } finally {
@@ -74,7 +74,7 @@ const Jobs = () => {
       return matchesSearch && matchesLocation && matchesJobType && matchesSalary
     })
 
-    setJobs(filtered)
+    setJobs(filtered.reverse())
   }
 
   const fetchUserApplications = async () => {

@@ -22,12 +22,12 @@ const createApplication = async (req, res, next) => {
       userId: req.user.id,
       jobId: req.body.job,
       coverLetter: req.body.coverLetter,
+      status: "accepted",
     });
 
     await logActivity(req.user.id, "apply_job", `Applied to job ${job.title}`);
-    await sendApplicationEmail(req.user.email, job.title, job.company);
 
-    res.status(201).json({ application });
+    res.status(201).json({ application, message: "Thank you for submitting your application!" });
   } catch (error) {
     next(error);
   }
@@ -51,17 +51,31 @@ const getApplicationsByUser = async (req, res, next) => {
 
 const getApplicationsByJob = async (req, res, next) => {
   try {
-    const job = await Job.findByPk(req.params.jobId);
+    const jobId = parseInt(req.params.jobId);
+    if (isNaN(jobId)) throw new Error("Invalid job ID");
+
+    const job = await Job.findByPk(jobId);
     if (!job) throw new Error("Job not found");
-    if (job.userId !== req.user.id && req.user.role !== "admin")
+
+   
+    logger.info(`Fetching applications for job ${jobId} by user ${req.user.id} (role: ${req.user.role})`);
+
+    if (job.userId !== req.user.id && req.user.role !== "admin") {
       throw new Error("Unauthorized");
+    }
 
     const applications = await Application.findAll({
-      where: { jobId: req.params.jobId },
+      where: { jobId },
       include: [
         { model: User, as: "candidate", attributes: ["id", "name", "email"] },
       ],
     });
+
+    logger.info(`Found ${applications.length} applications for job ${jobId}`);
+
+    if (applications.length === 0) {
+      return res.json({ applications: [], message: "No applications found for this job" });
+    }
 
     res.json({ applications });
   } catch (error) {
