@@ -8,7 +8,9 @@ const authRoutes = require("./routes/authRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const userRoutes = require("./routes/userRoutes");
+
 const { errorHandler } = require("./middleware/errorMiddleware");
+const { scheduleCronJobs } = require("./services/cronService");
 
 dotenv.config();
 
@@ -36,6 +38,7 @@ const PORT = process.env.PORT || 5000;
 sequelize
   .sync()
   .then(() => {
+    scheduleCronJobs();
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

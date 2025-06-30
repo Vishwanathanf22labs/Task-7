@@ -16,6 +16,13 @@ const ActivityLog = sequelize.define("ActivityLog", {
     type: DataTypes.TEXT,
     allowNull: false,
   },
+}, {
+  hooks: {
+    beforeCreate: async (log) => {
+      log.action = log.action.trim();
+      log.details = log.details.trim();
+    },
+  },
 });
 
 ActivityLog.belongsTo(User, { foreignKey: "userId" });

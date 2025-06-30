@@ -1,7 +1,7 @@
 import React from 'react'
 import { useAuth } from '../context/AuthContext'
 import { Navigate } from 'react-router-dom'
-import AdminDashboard from '../components/dashboard/AdminDashboard'
+// import AdminDashboard from '../components/dashboard/AdminDashboard'
 import EmployerDashboard from '../components/dashboard/EmployerDashboard'
 import CandidateDashboard from '../components/dashboard/CandidateDashboard'
 import Spinner from '../components/ui/Spinner'
@@ -31,3 +31,5 @@ const Dashboard = () => {
 }
 
 export default Dashboard
+
+
